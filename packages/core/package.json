@@ -1,0 +1,38 @@
+{
+  "name": "@purgeon/core",
+  "version": "0.1.0",
+  "description": "Plugin base classes, module graph, purge-css engine, and used-classes/used-vars extractors for purgeon",
+  "keywords": [
+    "css",
+    "purge",
+    "rolldown",
+    "tree-shaking",
+    "vite"
+  ],
+  "license": "MIT",
+  "author": "Konstantin Kireyev <https://github.com/knst0>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knst0/purgeon.git",
+    "directory": "packages/core"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "lightningcss": "catalog:"
+  }
+}

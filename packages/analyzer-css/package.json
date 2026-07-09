@@ -1,0 +1,40 @@
+{
+  "name": "@purgeon/analyzer-css",
+  "version": "0.1.0",
+  "description": "Walks bundled CSS via lightningcss visitor, builds class co-occurrence and custom-property graphs for purgeon",
+  "keywords": [
+    "css",
+    "lightningcss",
+    "purge",
+    "rolldown",
+    "tree-shaking",
+    "vite"
+  ],
+  "license": "MIT",
+  "author": "Konstantin Kireyev <https://github.com/knst0>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knst0/purgeon.git",
+    "directory": "packages/analyzer-css"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@purgeon/core": "workspace:*",
+    "lightningcss": "catalog:"
+  }
+}

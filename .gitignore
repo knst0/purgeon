@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.nitro/
+.output/
+.turbo/
+
+# Agents
+.claude/
+
+# IDE's
+.idea/

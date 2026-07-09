@@ -1,0 +1,46 @@
+{
+  "name": "@purgeon/rolldown-plugin",
+  "version": "0.1.0",
+  "description": "Rolldown/Vite plugin that cross-references JSX usage against CSS graphs and purges unused rules from emitted CSS",
+  "keywords": [
+    "css",
+    "purge",
+    "rolldown-plugin",
+    "tree-shaking",
+    "vite-plugin"
+  ],
+  "license": "MIT",
+  "author": "Konstantin Kireyev <https://github.com/knst0>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knst0/purgeon.git",
+    "directory": "packages/rolldown-plugin"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@purgeon/analyzer-css": "workspace:*",
+    "@purgeon/analyzer-jsx": "workspace:*",
+    "@purgeon/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rolldown": "catalog:"
+  },
+  "peerDependencies": {
+    "rolldown": "^1.0.0"
+  }
+}

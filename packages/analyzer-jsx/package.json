@@ -1,0 +1,43 @@
+{
+  "name": "@purgeon/analyzer-jsx",
+  "version": "0.1.0",
+  "description": "Walks JSX AST via oxc-walker, tracks element usages and class-variant calls (cva/cn/cx/tv/clsx) for purgeon",
+  "keywords": [
+    "ast",
+    "clsx",
+    "cva",
+    "jsx",
+    "oxc",
+    "purge",
+    "rolldown",
+    "tree-shaking",
+    "vite"
+  ],
+  "license": "MIT",
+  "author": "Konstantin Kireyev <https://github.com/knst0>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knst0/purgeon.git",
+    "directory": "packages/analyzer-jsx"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@purgeon/core": "workspace:*",
+    "oxc-walker": "catalog:"
+  }
+}
