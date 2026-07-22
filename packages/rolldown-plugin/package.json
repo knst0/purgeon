@@ -1,6 +1,6 @@
 {
   "name": "@purgeon/rolldown-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rolldown/Vite plugin that cross-references JSX usage against CSS graphs and purges unused rules from emitted CSS",
   "keywords": [
     "css",

@@ -1,6 +1,6 @@
 {
   "name": "@purgeon/analyzer-css",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Walks bundled CSS via lightningcss visitor, builds class co-occurrence and custom-property graphs for purgeon",
   "keywords": [
     "css",
