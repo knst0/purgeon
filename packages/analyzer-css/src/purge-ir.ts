@@ -6,6 +6,7 @@ export function toCssPurgeIR(rules: CssRule[]): CssPurgeIRRule[] {
   return rules.map(
     (rule: CssRule): CssPurgeIRRule => ({
       classes: rule.classes,
+      dataAttrs: rule.dataAttrs,
       declaredVars: rule.declaredVars,
       referencedVars: rule.referencedVars,
       varDeclarations: rule.varDeclarations.map(

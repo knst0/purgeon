@@ -7,4 +7,5 @@ export * from "./purge-css";
 export * from "./purge-strategy";
 export * from "./class-evaluator";
 export * from "./used-classes";
+export * from "./used-data-attrs";
 export * from "./used-vars";

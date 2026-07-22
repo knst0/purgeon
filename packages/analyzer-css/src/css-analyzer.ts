@@ -1,6 +1,7 @@
 import {
   AnalyzerPlugin,
   classesOf,
+  dataAttrsOf,
   pluginName,
   splitCompoundSelectors,
   type OutputBundle,
@@ -83,6 +84,7 @@ export class CssAnalyzer extends AnalyzerPlugin<CssGraphNode> {
         Rule: {
           style: (rule) => {
             const classes = new Set<string>();
+            const dataAttrs = new Set<string>();
 
             for (const selector of rule.value.selectors) {
               for (const group of splitCompoundSelectors(selector)) {
@@ -93,6 +95,8 @@ export class CssAnalyzer extends AnalyzerPlugin<CssGraphNode> {
                     this.classGraph.addCoOccurrence(groupClasses[i]!, groupClasses[j]!);
                   }
                 }
+
+                for (const attrKey of dataAttrsOf(group)) dataAttrs.add(attrKey);
               }
             }
 
@@ -100,6 +104,7 @@ export class CssAnalyzer extends AnalyzerPlugin<CssGraphNode> {
 
             currentRule = {
               classes: [...classes],
+              dataAttrs: [...dataAttrs],
               declarations: (rule.value.declarations?.declarations ?? []).map((declaration: { property: string }) => declaration.property),
               declaredVars: [],
               referencedVars: [],

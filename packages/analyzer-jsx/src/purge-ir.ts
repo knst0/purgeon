@@ -12,6 +12,8 @@ export function toJsxPurgeIR(node: JsxGraphNode): JsxPurgeIRNode {
           name: (prop as { name: string }).name,
           kind: (prop as { kind: string }).kind,
           value: (prop as { value?: unknown }).value,
+          propRef: (prop as { propRef?: string }).propRef,
+          fallback: (prop as { fallback?: string }).fallback,
         })),
       }),
     ),

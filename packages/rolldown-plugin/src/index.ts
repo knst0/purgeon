@@ -2,7 +2,15 @@ import { writeFileSync } from "node:fs";
 
 import { toCssPurgeIR, type CssGraphNode } from "@purgeon/analyzer-css";
 import { toJsxPurgeIR, type JsxGraphNode } from "@purgeon/analyzer-jsx";
-import { extractUsedClasses, extractUsedVars, isAnalyzer, purgeUnusedCss, type AnalyzerPlugin, type OutputBundle } from "@purgeon/core";
+import {
+  extractUsedClasses,
+  extractUsedDataAttrs,
+  extractUsedVars,
+  isAnalyzer,
+  purgeUnusedCss,
+  type AnalyzerPlugin,
+  type OutputBundle,
+} from "@purgeon/core";
 import type { Plugin as RolldownPlugin } from "rolldown";
 
 type PurgeonPluginResult = RolldownPlugin & { enforce?: "pre" | "post" };
@@ -42,7 +50,7 @@ export function purgeon(options: PluginOptions = {}): PurgeonPluginResult {
       }
 
       usage = reportUsage(wrappers, this);
-      if (usage) purgeBundle(bundle as unknown as OutputBundle, usage.usedClasses, usage.usedVars);
+      if (usage) purgeBundle(bundle as unknown as OutputBundle, usage.usedSelectorKeys, usage.usedVars);
     },
 
     writeBundle() {
@@ -54,6 +62,7 @@ export function purgeon(options: PluginOptions = {}): PurgeonPluginResult {
       }
       if (usage) {
         graphs.usedClasses = usage.classes;
+        graphs.usedDataAttrs = usage.dataAttrs;
         graphs.usedVars = usage.vars;
       }
 
@@ -83,7 +92,8 @@ function summarize(used: Set<string>, total: Set<string>): UsageSummary {
 interface UsageReport {
   classes: UsageSummary;
   vars: UsageSummary;
-  usedClasses: Set<string>;
+  dataAttrs: UsageSummary;
+  usedSelectorKeys: Set<string>;
   usedVars: Set<string>;
 }
 
@@ -108,18 +118,22 @@ function reportUsage(wrappers: AnalyzerWrapper[], ctx: { info(msg: string): void
   const usedClasses = extractUsedClasses(jsxNodes, cssClasses);
   const classes = summarize(usedClasses, cssClasses);
 
+  const usedDataAttrs = extractUsedDataAttrs(jsxNodes);
+  const dataAttrs = summarize(usedDataAttrs, usedDataAttrs);
+  const usedSelectorKeys = new Set([...usedClasses, ...usedDataAttrs]);
+
   const allVars = new Set<string>();
   for (const rule of cssRules) {
     for (const varName of rule.declaredVars) allVars.add(varName);
     for (const varName of rule.referencedVars) allVars.add(varName);
   }
-  const usedVars = extractUsedVars(cssRules, usedClasses);
+  const usedVars = extractUsedVars(cssRules, usedSelectorKeys);
   const vars = summarize(usedVars, allVars);
 
   ctx.info(`[purgeon] CSS classes: ${classes.usedCount} used, ${classes.unusedCount} unused (of ${classes.total} total)`);
   ctx.info(`[purgeon] CSS vars: ${vars.usedCount} used, ${vars.unusedCount} unused (of ${vars.total} total)`);
 
-  return { classes, vars, usedClasses, usedVars };
+  return { classes, vars, dataAttrs, usedSelectorKeys, usedVars };
 }
 
 function purgeBundle(bundle: OutputBundle, usedClasses: Set<string>, usedVars: Set<string>): void {

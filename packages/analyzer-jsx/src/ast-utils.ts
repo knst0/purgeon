@@ -205,6 +205,30 @@ export function resolveCssModuleRef(expr: any, importBindings: Map<string, { sou
   return `${binding.source}::${propName}`;
 }
 
+const DATA_ATTR_NAME_PATTERN = /^data-/;
+
+/** Detects `props.color`, bare `color`, or `props.color ?? "fallback"` — the common prop-forwarding
+ *  pattern where a component mirrors one of its own props onto a `data-*` attribute. Lets callers
+ *  narrow the attribute's possible values using literal usages of that prop name elsewhere in the app,
+ *  instead of treating the attribute as fully dynamic. */
+function extractPropRef(expr: any): { propRef: string; fallback?: string } | null {
+  if (expr.type === "Identifier") return { propRef: expr.name };
+
+  if (expr.type === "MemberExpression" && !expr.computed && expr.property?.type === "Identifier") {
+    return { propRef: expr.property.name };
+  }
+
+  if (expr.type === "LogicalExpression" && (expr.operator === "??" || expr.operator === "||")) {
+    const left = extractPropRef(expr.left);
+    if (!left) return null;
+    return expr.right.type === "Literal" && typeof expr.right.value === "string"
+      ? { propRef: left.propRef, fallback: expr.right.value }
+      : left;
+  }
+
+  return null;
+}
+
 /** Extracts JSX props to serializable form. Optional resolveExpr hook for custom resolution (e.g. CSS Modules). */
 export function extractProps(attributes: any[], code: string, resolveExpr?: (expr: any) => { kind: string; value: unknown } | null) {
   return attributes.map((attr: any) => {
@@ -227,7 +251,14 @@ export function extractProps(attributes: any[], code: string, resolveExpr?: (exp
       }
 
       const staticResult = tryStaticEval(expr);
-      return staticResult.ok ? { name, kind: "literal", value: staticResult.value } : { name, kind: "expr", code: sourceOf(expr, code) };
+      if (staticResult.ok) return { name, kind: "literal", value: staticResult.value };
+
+      if (DATA_ATTR_NAME_PATTERN.test(name)) {
+        const propRef = extractPropRef(expr);
+        if (propRef) return { name, kind: "prop-ref", ...propRef };
+      }
+
+      return { name, kind: "expr", code: sourceOf(expr, code) };
     }
 
     return { name, kind: "literal", value: attr.value.value };

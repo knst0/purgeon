@@ -36,3 +36,33 @@ export function classesOf(components: SelectorComponent[]): string[] {
 
   return [...result];
 }
+
+const DATA_ATTR_PATTERN = /^data-/;
+
+export function dataAttrsOf(components: SelectorComponent[]): string[] {
+  const result = new Set<string>();
+
+  for (const component of components) {
+    if (component.type === "attribute" && DATA_ATTR_PATTERN.test(component.name)) {
+      if (component.operation?.operator === "equal") {
+        result.add(`${component.name}=${component.operation.value}`);
+        result.add(`${component.name}=*`);
+      } else {
+        result.add(component.name);
+      }
+      continue;
+    }
+
+    if (component.type === "pseudo-class" && (component.kind === "is" || component.kind === "where" || component.kind === "has")) {
+      for (const nestedSelector of component.selectors) {
+        for (const group of splitCompoundSelectors(nestedSelector)) {
+          for (const key of dataAttrsOf(group)) {
+            result.add(key);
+          }
+        }
+      }
+    }
+  }
+
+  return [...result];
+}

@@ -3,6 +3,10 @@ export interface JsxPurgeIRProp {
   name: string;
   kind: string;
   value?: unknown;
+  /** For kind "prop-ref": the referenced prop name (`data-x={props.color}` -> "color"). */
+  propRef?: string;
+  /** For kind "prop-ref": literal fallback value (`props.color ?? "gray"` -> "gray"). */
+  fallback?: string;
 }
 
 /** One JSX element usage in a module. */
@@ -43,6 +47,7 @@ export interface CssPurgeIRVarDeclaration {
 /** A single CSS rule, projected from the CSS analyzer for cross-referencing. */
 export interface CssPurgeIRRule {
   classes: string[];
+  dataAttrs?: string[];
   declaredVars: string[];
   referencedVars: string[];
   varDeclarations?: CssPurgeIRVarDeclaration[];

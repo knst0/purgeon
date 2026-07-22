@@ -7,6 +7,7 @@ export interface CssVarDeclaration {
 
 export interface CssRule {
   classes: string[];
+  dataAttrs: string[];
   declarations: string[];
   declaredVars: string[];
   referencedVars: string[];

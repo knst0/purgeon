@@ -9,15 +9,16 @@ export function collectAllVars(cssRules: Iterable<CssPurgeIRRule>): Set<string> 
   return all;
 }
 
-/** Returns live CSS custom properties given usedClasses.
- *  Class-scoped: gated by usedClasses. Unscoped refs always live;
- *  decls propagate per-declaration via varDeclarations. */
-export function extractUsedVars(cssRules: Iterable<CssPurgeIRRule>, usedClasses: ReadonlySet<string> | Iterable<string>): Set<string> {
+/** Returns live CSS custom properties given usedSelectorKeys (class names and/or `[data-*]` attribute
+ *  liveness keys, see `dataAttrsOf`). Class- or attribute-scoped rules are gated by usedSelectorKeys;
+ *  fully unscoped rules (e.g. bare `:root`) are always live; decls propagate per-declaration via varDeclarations. */
+export function extractUsedVars(cssRules: Iterable<CssPurgeIRRule>, usedSelectorKeys: ReadonlySet<string> | Iterable<string>): Set<string> {
   const rules = [...cssRules];
-  const usedClassSet = usedClasses instanceof Set ? usedClasses : new Set(usedClasses);
+  const usedKeySet = usedSelectorKeys instanceof Set ? usedSelectorKeys : new Set(usedSelectorKeys);
 
-  const classScopedRules = rules.filter((rule) => rule.classes.length > 0);
-  const unscopedRules = rules.filter((rule) => rule.classes.length === 0);
+  const isScoped = (rule: CssPurgeIRRule) => rule.classes.length > 0 || (rule.dataAttrs?.length ?? 0) > 0;
+  const scopedRules = rules.filter(isScoped);
+  const unscopedRules = rules.filter((rule) => !isScoped(rule));
 
   const usedVars = new Set<string>();
   const add = (varName: string): boolean => {
@@ -26,8 +27,9 @@ export function extractUsedVars(cssRules: Iterable<CssPurgeIRRule>, usedClasses:
     return true;
   };
 
-  for (const rule of classScopedRules) {
-    if (!rule.classes.some((className) => usedClassSet.has(className))) continue;
+  for (const rule of scopedRules) {
+    const keys = rule.dataAttrs ? [...rule.classes, ...rule.dataAttrs] : rule.classes;
+    if (!keys.some((key) => usedKeySet.has(key))) continue;
     for (const varName of rule.declaredVars) add(varName);
     for (const varName of rule.referencedVars) add(varName);
   }

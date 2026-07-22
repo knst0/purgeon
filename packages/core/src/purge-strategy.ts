@@ -1,6 +1,6 @@
 import type { StyleRule } from "lightningcss";
 
-import { classesOf, splitCompoundSelectors } from "./selector-utils";
+import { classesOf, dataAttrsOf, splitCompoundSelectors } from "./selector-utils";
 
 export interface WholeRuleLivenessStrategy {
   /** Returns liveness keys from selectors. Rule survives iff ≥1 key is live. Empty → delegate. */
@@ -12,17 +12,18 @@ export interface DeclarationLivenessStrategy {
   collectDeadRanges(body: string, bodyOffset: number): [number, number][];
 }
 
-/** Returns all class selectors referenced by the rule. */
+/** Returns all class selectors and `[data-*]` attribute selectors referenced by the rule. */
 export function createClassLivenessStrategy(): WholeRuleLivenessStrategy {
   return {
     collectKeys(rule: StyleRule): string[] {
-      const classes = new Set<string>();
+      const keys = new Set<string>();
       for (const selector of rule.selectors) {
         for (const group of splitCompoundSelectors(selector)) {
-          for (const className of classesOf(group)) classes.add(className);
+          for (const className of classesOf(group)) keys.add(className);
+          for (const attrKey of dataAttrsOf(group)) keys.add(attrKey);
         }
       }
-      return [...classes];
+      return [...keys];
     },
   };
 }
